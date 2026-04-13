@@ -7,6 +7,8 @@ const vectorize = (tfidf, index) => {
         vector[term.term] = term.tfidf
     })
 
+    terms.slice(0, 100)
+
     return vector
 }
 
