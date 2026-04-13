@@ -1,12 +1,12 @@
-require('dotenv').config()
-const express = require('express')
+require("dotenv").config();
+const express = require("express");
 
-const app = express()
+const recommend = require("./modules/recommend/routes");
 
-app.use(express.json())
+const app = express();
 
-app.get('/', (req, res) => {
-    res.send('API RUNNING')
-})
+app.use(express.json());
 
-module.exports = app
+app.use('/api/recommend', recommend)
+
+module.exports = app;
