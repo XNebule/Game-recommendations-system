@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  preferences UserPreference[]
+}
+
+model Game {
+  id           Int      @id
+  name         String
+  descriptions GameDescription?
+  tags         GameTag[]
+}
+
+model GameDescription {
+  id           Int    @id @default(autoincrement())
+  gameId       Int    @unique
+  shortDesc    String?
+  detailedDesc String?
+
+  game Game @relation(fields: [gameId], references: [id])
+}
+
+model GameTag {
+  id     Int    @id @default(autoincrement())
+  gameId Int
+  tag    String
+
+  game Game @relation(fields: [gameId], references: [id])
+}
+
+model UserPreference {
+  id     Int    @id @default(autoincrement())
+  userId String
+  gameId Int
+
+  user User @relation(fields: [userId], references: [id])
+}
