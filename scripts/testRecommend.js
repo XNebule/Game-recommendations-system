@@ -7,7 +7,7 @@ const testRec = () => {
     const targetGameId = vectors[0].id
     console.log('Target Game ID: ', targetGameId)
     
-    const results = recommend(targetGameId, vectors, 50)
+    const results = recommend.recommend(targetGameId, vectors, 50)
     
     console.log("Sample vector:", vectors[0]);
     console.log('Recommendations:')

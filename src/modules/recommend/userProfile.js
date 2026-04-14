@@ -1,17 +1,22 @@
 const buildUserProfile = (preferences, vectors) => {
-    const profile = {}
+  const profile = {};
 
-    preferences.forEach(pref => {
-        const gameVector = vectors.find(v => v.id === pref.gameId)
+  preferences.forEach((pref) => {
+    const gameVector = vectors.find(
+      (v) => Number(v.id) === Number(pref.gameId),
+    );
 
-        if (!gameVector) return
+    console.log("PREF:", pref.gameId);
+    console.log("FOUND:", gameVector ? "YES" : "NO");
 
-        for (let key in gameVector.vector) {
-            profile[key] = (profile[key] || 0) + gameVector.vector[key]
-        }
-    });
+    if (!gameVector) return;
 
-    return profile
+    for (let key in gameVector.vector) {
+      profile[key] = (profile[key] || 0) + gameVector.vector[key];
+    }
+  });
+
+  return profile;
 }
 
-module.exports = buildUserProfile
+module.exports = buildUserProfile;
