@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 
 let CACHE = null;
+let vectorMap = new Map()
+const resultCache = new Map()
 
 /* CACHING */
 
@@ -15,6 +17,7 @@ const loadVector = () => {
   );
 
   CACHE = JSON.parse(data);
+  vectorMap = new Map(CACHE.map((g) => [g.id, g]))
   console.log(`Vectors cached: ${CACHE.length}`);
 
   return CACHE;
@@ -38,25 +41,43 @@ const cosineSimilarity = (vecA, vecB) => {
 
 const getSimilarGames = (gameId, topN = 5) => {
   const MIN_SCORE = 0.1
-  const vectors = loadVector()
-  const target = vectors.find((g) => g.id === gameId);
+
+  loadVector()
+
+  const cacheKey = `${gameId}-${topN}`
+
+  if (resultCache.has(cacheKey)) {
+    return resultCache.get(cacheKey)
+  }
+  
+  const target = vectorMap.get(gameId)
 
   if (!target) {
     throw new Error("Game not found");
   }
 
-  const results = vectors
-    .filter((g) => g.id !== gameId)
-    .map((g) => ({
-      id: g.id,
-      name: g.name,
-      score: cosineSimilarity(target.vector, g.vector),
-    }))
-    .filter((g) => g.score > MIN_SCORE)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, topN);
+  const results = []
+
+  for (let g of CACHE) {
+    if (g.id === gameId) continue
+
+    const score = cosineSimilarity(target.vector, g.vector)
+
+    if (score > MIN_SCORE) {
+      results.push({
+        id: g.id,
+        name: g.name,
+        similarity: score
+      })
+    }
+  }
+
+  results.sort((a, b) => b.similarity - a.similarity)
+  const finalResults = results.slice(0, topN)
+
+  resultCache.set(cacheKey, finalResults)
   
-  return results
+  return finalResults
 };
 
 /* Profile preference */
