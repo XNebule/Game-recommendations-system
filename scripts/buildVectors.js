@@ -18,13 +18,14 @@ const loadGames = async () => {
   });
 
   return games.map((game) => {
+    const tagBoost = 3
     const tags = game.tags.map((t) => t.tag).join(" ");
+    const boostedTags = Array(tagBoost).fill(tags).join(" ")
 
     const text = `
       ${game.name}
       ${game.descriptions?.shortDesc || ""}
-      ${game.descriptions?.detailedDesc || ""}
-      ${tags}
+      ${boostedTags}
     `;
 
     return {
@@ -84,16 +85,19 @@ const buildTfIdf = (games) => {
 /* =========================
    4. VECTORIZE (FIXED)
 ========================= */
+
 const vectorize = (tfidf, index) => {
   const terms = tfidf.listTerms(index);
-
   const vector = {};
 
-  // ⚠️ IMPORTANT FIX:
-  // limit BEFORE looping
-  terms.slice(0, 100).forEach((term) => {
-    vector[term.term] = term.tfidf;
-  });
+  const blacklist = ["world", "number", "complete", "based"];
+
+  terms
+    .filter((t) => !blacklist.includes(t.term))
+    .slice(0, 100)
+    .forEach((term) => {
+      vector[term.term] = term.tfidf;
+    });
 
   return vector;
 };
@@ -116,16 +120,16 @@ const run = async () => {
 
     const normalize = (vector) => {
       const norm = Math.sqrt(
-        Object.values(vector).reduce((sum, val) => sum + val * val, 0)
-      )
+        Object.values(vector).reduce((sum, val) => sum + val * val, 0),
+      );
 
-      const result = {}
+      const result = {};
       for (let key in vector) {
-        result[key] = vector[key] / norm
+        result[key] = vector[key] / norm;
       }
 
-      return result
-    }
+      return result;
+    };
     const tfidf = buildTfIdf(processed);
     const vectors = processed.map((g, i) => ({
       id: g.id,

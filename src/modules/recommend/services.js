@@ -37,6 +37,7 @@ const cosineSimilarity = (vecA, vecB) => {
 /* Get similar games */
 
 const getSimilarGames = (gameId, topN = 5) => {
+  const MIN_SCORE = 0.1
   const vectors = loadVector()
   const target = vectors.find((g) => g.id === gameId);
 
@@ -51,6 +52,7 @@ const getSimilarGames = (gameId, topN = 5) => {
       name: g.name,
       score: cosineSimilarity(target.vector, g.vector),
     }))
+    .filter((g) => g.score > MIN_SCORE)
     .sort((a, b) => b.score - a.score)
     .slice(0, topN);
   
