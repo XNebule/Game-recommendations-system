@@ -18,9 +18,9 @@ const loadGames = async () => {
   });
 
   return games.map((game) => {
-    const tagBoost = 3
+    const tagBoost = 3;
     const tags = game.tags.map((t) => t.tag).join(" ");
-    const boostedTags = Array(tagBoost).fill(tags).join(" ")
+    const boostedTags = Array(tagBoost).fill(tags).join(" ");
 
     const text = `
       ${game.name}
