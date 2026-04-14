@@ -23,29 +23,38 @@ const loadVector = () => {
 /* Cosine Similarity */
 
 const cosineSimilarity = (vecA, vecB) => {
-  let dot = 0,
-    magA = 0,
-    magB = 0;
+  let score = 0;
 
-  const keys = new Set([...Object.keys(vecA), ...Object.keys(vecB)]);
-
-  for (let key of keys) {
-    const a = Number(vecA[key]) || 0;
-    const b = Number(vecB[key]) || 0;
-
-    dot += a * b;
-    magA += a * a;
-    magB += b * b;
+  for (let key in vecA) {
+    if (vecB[key]) {
+      score += vecA[key] * vecB[key];
+    }
   }
-  magA = Math.sqrt(magA);
-  magB = Math.sqrt(magB);
 
-  if (!magA || !magB) return 0;
-  const result = dot / (magA * magB);
+  return score;
+};
 
-  if (isNaN(result)) return 0;
+/* Get similar games */
 
-  return result;
+const getSimilarGames = (gameId, topN = 5) => {
+  const vectors = loadVector()
+  const target = vectors.find((g) => g.id === gameId);
+
+  if (!target) {
+    throw new Error("Game not found");
+  }
+
+  const results = vectors
+    .filter((g) => g.id !== gameId)
+    .map((g) => ({
+      id: g.id,
+      name: g.name,
+      score: cosineSimilarity(target.vector, g.vector),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topN);
+  
+  return results
 };
 
 /* Profile preference */
@@ -105,5 +114,5 @@ const generateRecommendations = (preferences) => {
 };
 
 module.exports = {
-  generateRecommendations,
+  generateRecommendations, getSimilarGames
 };

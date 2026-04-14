@@ -1,6 +1,6 @@
 const prisma = require("../../config/prisma");
 
-const { generateRecommendations } = require("./services");
+const { generateRecommendations, getSimilarGames } = require("./services");
 
 const getRecommendations = async (req, res) => {
   try {
@@ -51,7 +51,25 @@ const favGames = async (req, res) => {
   }
 };
 
+const recommend = (req, res) => {
+  try {
+    const gameId = Number(req.params.id)
+    const results = getSimilarGames(gameId, 5)
+
+    res.json({
+      Success: true,
+      Data: results
+    })
+  } catch (err) {
+    res.status(404).json({
+      Success: false,
+      Message: err.message
+    })
+  }
+}
+
 module.exports = {
   getRecommendations,
   favGames,
+  recommend
 };
