@@ -23,12 +23,12 @@ model Game {
 }
 
 model GameDescription {
-  id           Int    @id @default(autoincrement())
-  gameId       Int    @unique
-  shortDesc    String?
-  detailedDesc String?
+  id           Int      @id @default(autoincrement())
+  gameId       Int      @unique
+  shortDesc    String?  @db.Text
+  detailedDesc String?  @db.Text
 
-  game Game @relation(fields: [gameId], references: [id])
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model GameTag {
@@ -36,7 +36,7 @@ model GameTag {
   gameId Int
   tag    String
 
-  game Game @relation(fields: [gameId], references: [id])
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model UserPreference {
@@ -44,5 +44,7 @@ model UserPreference {
   userId String
   gameId Int
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
 }

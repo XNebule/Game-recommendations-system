@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
 
-const rC = require('./controller')
+const recommendation = require('./controller')
 
-router.post('/', rC.favGames)
-router.get('/', rC.getRecommendations)
+router.post('/', recommendation.favGames)
+router.get('/', recommendation.getRecommendations)
 
 module.exports = router
