@@ -23,6 +23,23 @@ const loadVector = () => {
   return CACHE;
 };
 
+/* Normalize */
+
+const normalize = (vector) => {
+  const norm = Math.sqrt(
+    Object.values(vector).reduce((sum, val) => sum + val * val, 0)
+  )
+
+  if (norm === 0) return vector
+
+  const result = {}
+  for (let key in vector) {
+    result[key] = vector[key] / norm
+  }
+
+  return result
+}
+
 /* Cosine Similarity */
 
 const cosineSimilarity = (vecA, vecB) => {
@@ -82,13 +99,11 @@ const getSimilarGames = (gameId, topN = 5) => {
 
 /* Profile preference */
 
-const buildUserProfile = (preferences, vectors) => {
+const buildUserProfile = (preferences) => {
   const profile = {};
 
   preferences.forEach((pref) => {
-    const gameVector = vectors.find(
-      (v) => Number(v.id) === Number(pref.gameId),
-    );
+    const gameVector = vectorMap.get(Number(pref.gameId))
 
     console.log("Preference:", pref.gameId);
     console.log("Found:", gameVector ? "Yes" : "No");
@@ -105,10 +120,14 @@ const buildUserProfile = (preferences, vectors) => {
 
 /* Recommendations */
 
-const recommendFromProfile = (profileVector, vectors, topN = 20) => {
+const recommendFromProfile = (profileVector, vectors, preferences, topN = 20) => {
+  const prefId = new Set(preferences.map(p => Number(p.gameId)))
   const scores = [];
 
   for (let v of vectors) {
+    if (prefId.has(Number(v.id))) continue
+
+
     const cosine = cosineSimilarity(profileVector, v.vector);
 
     scores.push({
@@ -125,13 +144,14 @@ const recommendFromProfile = (profileVector, vectors, topN = 20) => {
 
 const generateRecommendations = (preferences) => {
   const vectors = loadVector();
-  const profile = buildUserProfile(preferences, vectors);
+  const rawProfile = buildUserProfile(preferences)
 
-  if (Object.keys(profile).length === 0) {
-    return [];
+  if (Object.keys(rawProfile).length === 0) {
+    return []
   }
 
-  const result = recommendFromProfile(profile, vectors, 10);
+  const profile = normalize(rawProfile)
+  const result = recommendFromProfile(profile, vectors, preferences, 10)
 
   return result;
 };

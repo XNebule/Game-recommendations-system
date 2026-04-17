@@ -123,6 +123,8 @@ const run = async () => {
         Object.values(vector).reduce((sum, val) => sum + val * val, 0),
       );
 
+      if (norm === 0) return vector
+
       const result = {};
       for (let key in vector) {
         result[key] = vector[key] / norm;
@@ -130,6 +132,7 @@ const run = async () => {
 
       return result;
     };
+    
     const tfidf = buildTfIdf(processed);
     const vectors = processed.map((g, i) => ({
       id: g.id,
